@@ -1,0 +1,14 @@
+{
+  "name": "healthcore-digital",
+  "version": "1.0.0",
+  "scripts": {
+    "typecheck": "npx tsc --noEmit",
+    "build": "npx tsc",
+    "start": "node dist/main.js",
+    "dev": "npx tsc && node dist/main.js",
+    "serve": "npx http-server . -p 3000 -a 0.0.0.0"
+  },
+  "devDependencies": {
+    "typescript": "^5.0.0"
+  }
+}

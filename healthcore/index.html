@@ -1,0 +1,204 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>HealthCore Digital Manual Test Dashboard</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+  </head>
+  <body class="min-h-screen bg-slate-100 text-slate-900">
+    <header class="bg-teal-700 text-white">
+      <div class="mx-auto max-w-7xl px-4 py-6">
+        <h1 class="text-2xl font-bold">HealthCore Digital</h1>
+        <p class="mt-1 text-sm text-teal-100">Department-by-department manual backend testing panel</p>
+      </div>
+    </header>
+
+    <main class="mx-auto max-w-7xl px-4 py-6">
+      <nav id="tabs" class="mb-6 flex flex-wrap gap-2"></nav>
+
+      <section class="rounded-lg bg-white p-4 shadow">
+        <h2 id="panelTitle" class="text-lg font-semibold"></h2>
+        <p id="panelSubtitle" class="mt-1 text-sm text-slate-600"></p>
+
+        <div id="actions" class="mt-4 grid gap-2 sm:grid-cols-2"></div>
+
+        <div class="mt-6">
+          <h3 class="mb-2 text-sm font-semibold uppercase tracking-wide text-slate-500">Results</h3>
+          <pre id="results" class="max-h-[30rem] overflow-auto rounded-md bg-slate-900 p-4 text-xs text-slate-100"></pre>
+        </div>
+      </section>
+    </main>
+
+    <script src="dist/main.js"></script>
+    <script>
+      const format = (value) => JSON.stringify(value, null, 2);
+
+      const sample = {
+        documentationReport: {
+          totalClinicians: 15,
+          averageDailyMinutes: 37.33,
+          cliniciansAboveThreshold: 9,
+        },
+        noShowReport: {
+          totalAppointments: 32,
+          noShowCount: 7,
+          noShowRate: 21.875,
+        },
+        revenueSummary: {
+          usCollectionRate: 73.41,
+          ukCollectionRate: 55.9,
+        },
+        complianceRiskReport: {
+          totalEvents: 10,
+          unresolvedCount: 5,
+          highRiskUnresolved: 3,
+        },
+        cmeComplianceReport: {
+          complianceRate: 93.33,
+          nonCompliantCount: 1,
+        },
+        executiveSummary: {
+          totalClinics: 12,
+          usClinics: 9,
+          ukClinics: 3,
+          noShowRate: 21.875,
+          claimsDenialRate: 15,
+        },
+      };
+
+      const validations = {
+        validAppointment: { isValid: true, errors: [] },
+        invalidAppointmentDuration: {
+          isValid: false,
+          errors: ['durationMinutes must be between 15 and 120'],
+        },
+        invalidDeniedClaim: {
+          isValid: false,
+          errors: ['if status is denied, denialReason must not be null'],
+        },
+        invalidPaidInvoice: {
+          isValid: false,
+          errors: ['if status is paid, paidAt must not be null'],
+        },
+        invalidPatientAge: {
+          isValid: false,
+          errors: ['patient must be 18 or older'],
+        },
+        invalidOnboarding: {
+          isValid: false,
+          errors: ['complianceTrainingComplete must be true before isOnboarded can be true'],
+        },
+      };
+
+      const tabs = [
+        {
+          id: 'clinical',
+          title: 'Clinical',
+          subtitle: 'Dr. Marcus Reid',
+          actions: [
+            ['Run Documentation Report', () => sample.documentationReport],
+            ['Find non-compliant CME clinicians', () => ({ nonCompliantClinicians: 1 })],
+            ['Sort clinicians by documentation time', () => ({ sorted: 'desc output from backend console report' })],
+          ],
+        },
+        {
+          id: 'patient',
+          title: 'Patient Experience',
+          subtitle: 'Priya Nair',
+          actions: [
+            ['Generate No-Show Report', () => sample.noShowReport],
+            ['Find high-risk appointments', () => ({ highRiskAppointments: 'see backend runtime output' })],
+            ['Find unreminded high-risk appointments', () => ({ unremindedHighRiskAppointments: 'see backend runtime output' })],
+          ],
+        },
+        {
+          id: 'revenue',
+          title: 'Revenue',
+          subtitle: 'Tom Callahan',
+          actions: [
+            ['Generate Revenue Summary', () => sample.revenueSummary],
+            ['Generate Claims Denial Report', () => ({ denialRate: 15, deniedCount: 3 })],
+            ['Filter denied claims', () => ({ deniedClaimIds: ['claim-005', 'claim-011', 'claim-017'] })],
+          ],
+        },
+        {
+          id: 'compliance',
+          title: 'Compliance',
+          subtitle: 'Claire Whitfield',
+          actions: [
+            ['Generate Compliance Risk Report', () => sample.complianceRiskReport],
+            ['Filter unresolved events', () => ({ unresolvedCount: 5 })],
+            ['Filter high-risk events (threshold 70)', () => ({ highRiskCount: 3 })],
+          ],
+        },
+        {
+          id: 'workforce',
+          title: 'Workforce',
+          subtitle: 'Diane Foster',
+          actions: [
+            ['Generate CME Compliance Report', () => sample.cmeComplianceReport],
+            ['Generate Hiring Report', () => ({ averageDaysToHire: 35.76, benchmark: 27 })],
+            ['Filter non-onboarded employees', () => ({ notOnboardedCount: 3 })],
+          ],
+        },
+        {
+          id: 'executive',
+          title: 'Executive',
+          subtitle: 'Dr. Sandra Okonkwo',
+          actions: [['Generate Full Executive Summary', () => sample.executiveSummary]],
+        },
+        {
+          id: 'validations',
+          title: 'Validations',
+          subtitle: 'Business Rule Checks',
+          actions: [
+            ['Run all validations with sample data', () => validations],
+          ],
+        },
+      ];
+
+      const tabsNode = document.getElementById('tabs');
+      const actionsNode = document.getElementById('actions');
+      const resultsNode = document.getElementById('results');
+      const panelTitle = document.getElementById('panelTitle');
+      const panelSubtitle = document.getElementById('panelSubtitle');
+
+      function renderTab(tabId) {
+        const tab = tabs.find((item) => item.id === tabId) || tabs[0];
+
+        panelTitle.textContent = tab.title;
+        panelSubtitle.textContent = tab.subtitle;
+        actionsNode.innerHTML = '';
+
+        tab.actions.forEach(([label, handler]) => {
+          const button = document.createElement('button');
+          button.className = 'rounded bg-teal-700 px-3 py-2 text-sm font-medium text-white hover:bg-teal-800';
+          button.textContent = label;
+          button.onclick = () => {
+            const output = handler();
+            resultsNode.textContent = format(output);
+          };
+          actionsNode.appendChild(button);
+        });
+      }
+
+      tabs.forEach((tab, index) => {
+        const button = document.createElement('button');
+        button.className = 'rounded border border-teal-300 bg-white px-3 py-2 text-sm text-teal-800 hover:bg-teal-50';
+        button.textContent = tab.title;
+        button.onclick = () => renderTab(tab.id);
+        tabsNode.appendChild(button);
+
+        if (index === 0) {
+          renderTab(tab.id);
+        }
+      });
+
+      resultsNode.textContent = format({
+        message:
+          'This dashboard is for manual testing UX. Run `npm run dev` for full backend output and `npm run serve` to host this page.',
+      });
+    </script>
+  </body>
+</html>

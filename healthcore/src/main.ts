@@ -17,7 +17,7 @@ import {
   generateHiringReport,
   generateNoShowReport,
   generateRevenueSummary,
-} from './functions/aggregations';
+} from './utils/transformations';
 import {
   filterActiveClinicsByEHR,
   filterAppointmentsByClinic,
@@ -39,7 +39,7 @@ import {
   filterManualSubmissions,
   filterUnremindedHighRiskAppointments,
   filterUnresolvedComplianceEvents,
-} from './functions/filters';
+} from './utils/collections';
 import {
   binarySearchSortedAppointmentsByDate,
   binarySearchSortedClaimsByAmount,
@@ -49,7 +49,7 @@ import {
   linearSearchClinicianByLicence,
   linearSearchEmployeeById,
   linearSearchPatientById,
-} from './functions/search';
+} from './utils/search';
 import {
   sortAppointmentsByClinicThenDate,
   sortAppointmentsByDate,
@@ -59,7 +59,7 @@ import {
   sortEmployeesByDaysToHire,
   sortPatientsByRegistrationDate,
   sortUKInvoicesByAmountDue,
-} from './functions/sorting';
+} from './utils/transformations';
 import {
   validateAppointment,
   validateClaim,
@@ -67,7 +67,7 @@ import {
   validateEmployeeOnboarding,
   validatePatient,
   validateUKInvoice,
-} from './functions/validations';
+} from './utils/validations';
 import {
   Appointment,
   Claim,
@@ -75,7 +75,7 @@ import {
   Employee,
   Patient,
   UKInvoice,
-} from './types';
+} from './types/models';
 
 declare const console: {
   log: (...data: unknown[]) => void;
